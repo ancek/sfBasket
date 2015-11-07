@@ -22,36 +22,62 @@ class ProductController extends Controller
     }
 
     /**
-     * @Route("/{id}/add-to-cart")
+     * @Route("/{id}/add-to-cart", name="product_add_to_cart")
      * @Template()
      */
     public function addToCartAction($id)
     {
-        return array(
-                // ...
-        );
+        if( ! $product = $this->getProduct($id)) {
+            throw $this->createNotFoundException("Produkt nie został znaleziony");
+        }
+        
+        //Pobieramy usługę sesji
+        $session = $this->get('session');
+
+        //Jeżeli parametr nie istnieje zwróci nam tablicę
+        $basket = $session->get('basket', []);
+        
+        if( ! array_key_exists($id, $basket)) {
+            $basket[$id] = [
+                'name' => $product['name'],
+                'price' => $product['price'],
+                'quantity' => 1
+            ];
+        } else {
+            $basket[$id]['quantity']++;
+        }
+
+        //Aktualizujemy stan koszyka w sesji
+        $session->set('basket', $basket);
+        
+        $this->addFlash('success', 'Produkt został pomyślnie dodany do koszyka');
+        
+        return $this->redirectToRoute('product_basket');
+        
     }
 
     /**
-     * @Route("/basket")
-     * @Template()
+     * @Route("/basket", name="product_basket")
      */
     public function basketAction()
     {
-        return array(
-                // ...
-        );
+        $products = $this->get('session')->get('basket', []);
+        
+        return $this->render('product/basket.html.twig', [
+            'products' => $products
+        ]);
     }
 
     /**
-     * @Route("/{id}/remove-from-cart")
-     * @Template()
+     * @Route("/{id}/remove-from-cart", name="product_remove_form_cart")
      */
     public function removeFromCartAction($id)
     {
-        return array(
-                // ...
-        );
+        //Pobieramy usługę sesji
+        $session = $this->get('session');
+        $session->remove('basket', $id);
+        
+        return $this->redirectToRoute('product_basket');
     }
 
     /**
@@ -82,4 +108,15 @@ class ProductController extends Controller
         return $products;
     }
 
+    private function getProduct($id)
+    {
+        $products = $this->getProducts();
+        
+        if(array_key_exists($id, $products)) {
+            return $products[$id];
+        }
+        
+        return null;
+    }
+    
 }

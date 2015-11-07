@@ -1,12 +1,12 @@
-{% extends "base.html.twig" %}
+{% extends "::base.html.twig" %}
 
-{% block title %}Lista produktów{% endblock %}
+{% block title %}Koszyk{% endblock %}
 
 {% block body %}
-
+    
     <h1>{{ block('title') }}</h1>
     
-    <a href='{{ path('product_basket') }}'>KOSZYK</a>
+    <a href='{{ path('product_list') }}'>Lista produktów</a>
     <br><br>
     
     <table class="table table-striped">
@@ -15,25 +15,25 @@
                 <th>ID</th>
                 <th>Nazwa produktu</th>
                 <th>Cena</th>
-                <th>Opis</th>
-                <th>Opis</th>
+                <th>Ilość</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            {% for product in products %}
+            {% for id, product in products %}
                 <tr>
-                    <td>{{ product.id }}</td>
+                    <td>{{ id }}</td>
                     <td>{{ product.name }}</td>
                     <td>{{ product.price }}</td>
-                    <td>{{ product.description }}</td>
-                    <td><a class='btn btn-primary btn-sm pull-right' href="{{ path('product_add_to_cart', {'id' : product.id}) }}">Dodaj do koszyka</a></td>
+                    <td>{{ product.quantity }}</td>
+                    <td><a class='btn btn-danger btn-sm pull-right' href="{{ path('product_remove_form_cart', {'id' : id}) }}">Usuń z koszyka</a></td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="5">Nie znaleziono produktów.</td>
+                    <td colspan="4">Nie znaleziono produktów.</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-    
+
 {% endblock %}
