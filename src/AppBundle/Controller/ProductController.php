@@ -14,7 +14,9 @@ class ProductController extends Controller
      */
     public function listAction()
     {
-        $products = $this->getProducts();
+        $products = $this->getDoctrine()
+            ->getRepository('AppBundle:Product')
+            ->findall();
         
         return $this->render('product/list.html.twig', [
             'products' => $products
@@ -91,32 +93,6 @@ class ProductController extends Controller
         );
     }
     
-    private function getProducts()
-    {
-        $file = file('product.txt');
-        $products = [];
-        foreach ($file as $p) {
-            $e = explode(':', trim($p));
-            $products[$e[0]] = array(
-                'id' => $e[0],
-                'name' => $e[1],
-                'price' => $e[2],
-                'description' => $e[3],
-            );
-        }
-
-        return $products;
-    }
-
-    private function getProduct($id)
-    {
-        $products = $this->getProducts();
-        
-        if(array_key_exists($id, $products)) {
-            return $products[$id];
-        }
-        
-        return null;
-    }
+    
     
 }

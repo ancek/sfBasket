@@ -9,18 +9,22 @@
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     </head>
     <body>
-        
-        {% for type in ['success','danger'] %}
-            {% for flashMessage in app.session.flashbag.get(type) %}
-                <div class="alert alert-{{ type }}">
-                    {{ flashMessage }}
-                </div>
+        <div class='container'>
+            
+            {% for type in ['success','danger'] %}
+                {% for flashMessage in app.session.flashbag.get(type) %}
+                    <div class="alert alert-{{ type }}">
+                        {{ flashMessage }}
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
+
+            {% block body %}{% endblock %}
+            {% block javascripts %}
+                {#<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+                <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">#}
+            {% endblock %}
         
-        {% block body %}{% endblock %}
-        {% block javascripts %}
-            <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
-        {% endblock %}
+        </div>
     </body>
 </html>
