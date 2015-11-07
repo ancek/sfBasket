@@ -12,11 +12,12 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nazwa produktu</th>
-                <th>Cena</th>
+                <th>{{ knp_pagination_sortable(products, 'ID', 'p.id') }}</th>
+                <th>{{ knp_pagination_sortable(products, 'Nazwa produktu', 'p.name') }}</th>
+                <th>{{ knp_pagination_sortable(products, 'Kategoria', 'c.name') }}</th>
+                <th>{{ knp_pagination_sortable(products, 'Cena', 'p.price') }}</th>
                 <th>Opis</th>
-                <th>Opis</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -24,6 +25,7 @@
                 <tr>
                     <td>{{ product.id }}</td>
                     <td>{{ product.name }}</td>
+                    <td>{{ product.category.name }}</td>
                     <td>{{ product.price }}</td>
                     <td>{{ product.description }}</td>
                     <td><a class='btn btn-primary btn-sm pull-right' href="{{ path('product_add_to_cart', {'id' : product.id}) }}">Dodaj do koszyka</a></td>
@@ -35,5 +37,7 @@
             {% endfor %}
         </tbody>
     </table>
+        
+    {{ knp_pagination_render(products) }}
     
 {% endblock %}

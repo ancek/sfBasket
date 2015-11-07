@@ -8,6 +8,11 @@
     
     <a href='{{ path('product_list') }}'>Lista produktów</a>
     <br><br>
+
+    {% if basket.products|length > 0 %}
+        <a href='{{ path('product_basket_clear') }}' class='btn btn-warning'>Wyczyść koszyk</a>
+        <br><br>
+    {% endif %}
     
     <table class="table table-striped">
         <thead>
@@ -20,7 +25,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for id, product in products %}
+            {% for id, product in basket.products %}
                 <tr>
                     <td>{{ id }}</td>
                     <td>{{ product.name }}</td>
@@ -30,7 +35,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="4">Nie znaleziono produktów.</td>
+                    <td colspan="5">Nie znaleziono produktów.</td>
                 </tr>
             {% endfor %}
         </tbody>

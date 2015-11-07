@@ -2,9 +2,11 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use AppBundle\Entity\Product;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductController extends Controller
 {
@@ -12,45 +14,51 @@ class ProductController extends Controller
     /**
      * @Route("/list", name="product_list")
      */
-    public function listAction()
+    public function listAction(Request $request)
     {
-        $products = $this->getDoctrine()
+//        $qb = $this->getDoctrine()
+//            ->getRepository('AppBundle:Product')
+//            ->createQueryBuilder('p')
+//            ->select(['p', 'c'])
+//            ->innerJoin('p.category', 'c');
+        
+//        $qb = $this->getDoctrine()
+//            ->getManager()
+//            ->createQueryBuilder()
+//            ->from('AppBundle:Product', 'p')
+//            ->select(['p', 'c'])
+//            ->innerJoin('p.category', 'c');
+        
+        
+        $qb = $this->getDoctrine()
             ->getRepository('AppBundle:Product')
-            ->findall();
+            ->createQueryBuilder('p');
+        
+        $paginator = $this->get('knp_paginator');
+        $pagination = $paginator->paginate(
+            $qb, 
+            $request->query->getInt('page', 1)/* page number */,
+            10/* limit per page */
+        );
         
         return $this->render('product/list.html.twig', [
-            'products' => $products
-        ]);
+            'products' => $pagination
+         ]);
     }
 
     /**
      * @Route("/{id}/add-to-cart", name="product_add_to_cart")
      * @Template()
      */
-    public function addToCartAction($id)
+    public function addToCartAction(Product $product = null)
     {
-        if( ! $product = $this->getProduct($id)) {
-            throw $this->createNotFoundException("Produkt nie został znaleziony");
-        }
-        
         //Pobieramy usługę sesji
-        $session = $this->get('session');
+//        $product = $this->getDoctrine()
+//            ->getRepository('AppBundle:Product')
+//            ->find($id);
 
-        //Jeżeli parametr nie istnieje zwróci nam tablicę
-        $basket = $session->get('basket', []);
-        
-        if( ! array_key_exists($id, $basket)) {
-            $basket[$id] = [
-                'name' => $product['name'],
-                'price' => $product['price'],
-                'quantity' => 1
-            ];
-        } else {
-            $basket[$id]['quantity']++;
-        }
-
-        //Aktualizujemy stan koszyka w sesji
-        $session->set('basket', $basket);
+        $this->getBasket()
+            ->add($product);
         
         $this->addFlash('success', 'Produkt został pomyślnie dodany do koszyka');
         
@@ -63,36 +71,47 @@ class ProductController extends Controller
      */
     public function basketAction()
     {
-        $products = $this->get('session')->get('basket', []);
-        
         return $this->render('product/basket.html.twig', [
-            'products' => $products
+            'basket' => $this->getBasket()
         ]);
     }
 
     /**
      * @Route("/{id}/remove-from-cart", name="product_remove_form_cart")
      */
-    public function removeFromCartAction($id)
+    public function removeFromCartAction(Product $product)
     {
-        //Pobieramy usługę sesji
-        $session = $this->get('session');
-        $session->remove('basket', $id);
+        try {
+        $this->getBasket()
+            ->remove($product);
+        } catch (\AppBundle\Exception\ProductNotFoundException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+        
+        $this->addFlash('success', 'Produkt został pomyślnie usunięty z koszyka');
+
         
         return $this->redirectToRoute('product_basket');
     }
 
     /**
-     * @Route("/clearBasket")
+     * @Route("/clearBasket", name="product_basket_clear")
      * @Template()
      */
     public function clearBasketAction()
     {
-        return array(
-                // ...
-        );
+        $this->getBasket()
+            ->clear();
+        
+        return $this->redirectToRoute('product_basket');
     }
-    
-    
+    /**
+     * 
+     * @return \AppBundle\Utils\Basket
+     */
+    private function getBasket()
+    {
+        return $this->get('basket');
+    }
     
 }
