@@ -82,8 +82,11 @@ class ProductController extends Controller
     public function removeFromCartAction(Product $product)
     {
         try {
-        $this->getBasket()
-            ->remove($product);
+            $this
+                ->getBasket()
+                ->remove($product);
+        
+        
         } catch (\AppBundle\Exception\ProductNotFoundException $e) {
             $this->addFlash('error', $e->getMessage());
         }
@@ -105,6 +108,18 @@ class ProductController extends Controller
         
         return $this->redirectToRoute('product_basket');
     }
+    
+    /**
+     * 
+     * @return type
+     */
+    public function basketBoxAction()
+    {
+        return $this->render('product/basketBox.html.twig', [
+            'basket' => $this->getBasket()
+        ]);
+    }
+    
     /**
      * 
      * @return \AppBundle\Utils\Basket

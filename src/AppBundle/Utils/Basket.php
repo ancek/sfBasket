@@ -89,11 +89,19 @@ class Basket
     
     public function getTotalAmount()
     {
-        return 0;
+        $amount = 0;
+        foreach ($this->getProducts() as $product) {
+            $amount += $product['price'] * $product['quantity'];
+        }
+        return $amount;
     }
     
     public function getTotalQuantity()
     {
-        return 0;
+        $quantity = 0;
+        foreach ($this->getProducts() as $product) {
+            $quantity += $product['quantity'];
+        }
+        return $quantity;
     }
 }

@@ -11,6 +11,8 @@
     <body>
         <div class='container'>
             
+            {{ render(controller('AppBundle:Product:basketBox')) }}
+            
             {% for type in ['success','danger'] %}
                 {% for flashMessage in app.session.flashbag.get(type) %}
                     <div class="alert alert-{{ type }}">
